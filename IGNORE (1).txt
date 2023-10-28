@@ -1,4 +1,0 @@
-Should I maintain DB for Super Admin
-Can Admin delete user or Super admin delete user
-Can we use session table?
-super admin authentication
