@@ -1,59 +1,79 @@
-const dummyUser = require("../models/UserSchema");
+const { response } = require("express");
+const UserSchema = require("../models/UserSchema");
 
-async function displayPage(req, res){
+createUser = async (req, res) => {
+    const newUser = new UserSchema(req.body);
+    await newUser.save().then(
+        () => {
+            res.status(201).json({
+                message : "New User Created Successfully",
+            })
+        }
+    )
+        .catch(
+            (err) => {
+                res.status(500).json({
+                    message: err.message,   
+                })
+        }
+    );
+}
+
+updateUser = async (req, res) => {
     try {
-        res.status(200).json({
-            message : "Hello World!",
+        // console.log(req.body);
+        var userId = req.body.userId;
+        const filter = { userId: userId };
+        const update = req.body;
+        //updation works even for wrong userID need to check, and some error handlings
+        await UserSchema.exists(filter).then((doc) => {
+            UserSchema.updateOne(filter, update).then(
+                () => {
+                    res.status(200).json({
+                        message : "Updated User successfully"
+                    })
+                }
+            )
+                .catch(
+                (err) => {
+                    res.status(500).json({
+                        message : err.message,
+                    })
+                }
+            );
+        });
+
+    }
+    catch (error) {
+        res.status(500).json({
+            error: error.message,
         })
     }
-    catch (error) {
-        res.status(500).json({error : error.message})
-    }
-};
+}
 
-postDummyUser = async (req, res) => {
-    const newDummyUser = new dummyUser(req.body);
-    console.log(req.body);
-    try {
-        await newDummyUser.save(req.body).then(
-            (createdTask) => {
-                console.log(createdTask);
-            }
-        )
-    }
-    catch (error) {
-        console.log(error);
-    }
-};
-
-updateDummyUser = async (req, res) => {
-    console.log(req.body.name);
-    dummyUser.findOne({
-        id: "1"
-    }).then(
-        async (docs) => {
-            docs.name = req.body.name;
-            await docs.save();
-            console.log("updated");
+//delets user even if it is not present, requires error handling
+deleteUser = async (req, res) => {
+    userId = req.body.userId;
+    filter = { userId: userId };
+    await UserSchema.deleteOne(filter).then(
+        () => {
+            res.status(200).json({
+                message : "deletion Successful",
+            })
         }
-    ).catch((err) => {
-        console.log(err);
-    })
-    // try {
-    //     await existingDummyUser.save().then(
-    //         (createdTask) => {
-    //             console.log(createdTask);
-    //         }
-    //     )
-    // }
-    // catch (error) {
-    //     console.log(error);
-    // }
+    )
+    .catch(
+            (error) => {
+                res.status(500).json({
+                    message: error.message,
+                })
+        }
+    )
 
 }
 
 module.exports = {
-    displayPage,
-    postDummyUser,
-    updateDummyUser
+    createUser,
+    updateUser,
+    deleteUser
 }

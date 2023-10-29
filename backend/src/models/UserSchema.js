@@ -1,30 +1,58 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-    id: String,
-    password: String,
-    email: String,
-    name: String,
-    country_code: String,
-    phone_number: String,
-    user_type: String,
-    role_id: Number,
-    is_active: Boolean,
-    profile_picture: {
-        data: Buffer,
-        contentType: String,
-    }
-
-}, { timestamps: true });
-
-const dummyUserSchema = new mongoose.Schema({
-    id: {
+const email_regex = "^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+const UserSchema = new mongoose.Schema({
+    userId: {
         type: String,
+        required: true,
+        unique: true,
+        immutable: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        $regex: email_regex,
     },
     name: {
         type: String,
-    }
+        maxlength: [100, "Name must be less than 100 characters"]
+    },
+    contactNumber: 
+        {
+            countryCode: {
+                type: String,
+                maxlength: 3
+            },
+            phoneNumber: {
+                type: String,
+                maxlength: 12,
+            }
+        }
+    ,
+    userType: {
+        type: String,
+        required: true,
+        default: "user"
+    },
+    roleId: {
+        type: String,
+        deafult: null,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+    // profilePicture: {
+    //     data: Buffer,
+    //     contentType: String,
+    //     required: false,
+    // }
+
 }, { timestamps: true });
 
-module.exports = mongoose.model("UserSchema", userSchema);
-module.exports = mongoose.model("dummyUserSchema", dummyUserSchema);
+
+module.exports = mongoose.model("UserSchema", UserSchema);
